@@ -135,6 +135,13 @@ jobs:
           docker tag ${{ env.ACR_LOGIN_SERVER }}/product_service:${{ env.IMAGE_TAG }} ${{ env.ACR_LOGIN_SERVER }}/product_service:latest
           docker push ${{ env.ACR_LOGIN_SERVER }}/product_service --all-tags
 
+      - name: Build & Push Customer Service
+        run: |
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }} ./backend/customer_service/
+          docker tag ${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }} ${{ env.ACR_LOGIN_SERVER }}/customer_service:latest
+          docker push ${{ env.ACR_LOGIN_SERVER }}/customer_service --all-tags
+
+
       - name: Build & Push Order Service
         run: |
               docker build -t ${{ env.ACR_LOGIN_SERVER }}/order_service:${{ env.IMAGE_TAG }} ./backend/order_service/
@@ -142,12 +149,7 @@ jobs:
               docker push ${{ env.ACR_LOGIN_SERVER }}/order_service --all-tags
 
 
-      - name: Build & Push Customer Service
-        run: |
-          docker build -t ${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }} ./backend/customer_service/
-          docker tag ${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }} ${{ env.ACR_LOGIN_SERVER }}/customer_service:latest
-          docker push ${{ env.ACR_LOGIN_SERVER }}/customer_service --all-tags
-
+      
 
       - name: Logout from Azure
         run: az logout
