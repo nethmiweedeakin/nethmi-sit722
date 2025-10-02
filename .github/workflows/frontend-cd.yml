@@ -32,7 +32,7 @@ jobs:
 
     env:
       IMAGE_TAG: ${{ github.sha }}
-      ACR_NAME: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      ACR_NAME: ${{ secrets.AZURE_ACR_NAME }}
 
     steps:
       - name: Checkout repository
