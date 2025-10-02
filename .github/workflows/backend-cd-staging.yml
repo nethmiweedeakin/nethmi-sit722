@@ -33,10 +33,7 @@ jobs:
 
       - name: Set AKS context
         run: |
-          az aks get-credentials \
-            --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_CLUSTER_NAME }} \
-            --overwrite-existing
+          az aks get-credentials  --resource-group ${{ secrets.AKS_RESOURCE_GROUP }}  --name ${{ secrets.AKS_CLUSTER_NAME }}  --overwrite-existin
 
       - name: Create ephemeral namespace
         run: |
@@ -45,12 +42,9 @@ jobs:
       - name: Create ACR secret in namespace 
         run: |
           ACR_PASSWORD=$(az acr credential show --name ${{ secrets.AZURE_ACR_NAME }} --query "passwords[0].value" -o tsv)
-          kubectl -n $STAGING_NS create secret docker-registry acr-secret \
-            --docker-server=${{ secrets.AZURE_CONTAINER_REGISTRY }} \
-            --docker-username=${{ secrets.AZURE_ACR_NAME }} \
-            --docker-password=$ACR_PASSWORD \
-            --docker-email=weeramann@gmail.com || true
-            
+          kubectl -n $STAGING_NS create secret docker-registry acr-secret --docker-server=${{ secrets.AZURE_CONTAINER_REGISTRY }} --docker-username=${{ secrets.AZURE_ACR_NAME }}  --docker-password=${{ secrets.AZURE_ACR_KEY }}  --docker-email=weeramann@gmail.com || true
+
+          kubectl get secret -n $STAGING_NS acr-secret
 
       - name: Apply k8s manifests into ephemeral namespace
         run: kubectl -n $STAGING_NS apply -f k8s/
