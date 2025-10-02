@@ -70,6 +70,13 @@ jobs:
           kubectl -n $STAGING_NS set image deployment/$CUST_DEP $CUST_CONT=${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }}
           kubectl -n $STAGING_NS rollout status deployment/$CUST_DEP --timeout=180s
 
+      - name: Update frontend deployment image and rollout
+        run: |
+          FRONT_DEP=frontend-w10
+          FRONT_CONT=$(kubectl -n $STAGING_NS get deployment $FRONT_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+          kubectl -n $STAGING_NS set image deployment/$FRONT_DEP $FRONT_CONT=${{ env.ACR_LOGIN_SERVER }}/frontend:${{ env.IMAGE_TAG }}
+          kubectl -n $STAGING_NS rollout status deployment/$FRONT_DEP --timeout=180s
+
       - name: Destroy ephemeral namespace
         if: always()
         run: kubectl delete ns $STAGING_NS --wait=false || true
