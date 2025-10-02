@@ -1,4 +1,4 @@
-# week08/k8s/frontend.yaml
+# week10/k8s/frontend.yaml
 
 apiVersion: apps/v1
 kind: Deployment
@@ -22,8 +22,8 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
-    imagePullSecrets:
-      - name: acr-secret
+      imagePullSecrets:
+        - name: acr-secret
 ---
 apiVersion: v1
 kind: Service

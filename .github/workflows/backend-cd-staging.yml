@@ -1,4 +1,4 @@
-name: Backend CD - Deploy to AKS
+name: Backend CD - Deploy to AKS (Staging)
 
 on:
   workflow_run:
