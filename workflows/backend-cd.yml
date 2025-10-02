@@ -1,0 +1,68 @@
+
+name: Backend CD - Deploy to AKS (Production)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  ACR_LOGIN_SERVER_INPUT: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  deploy_backend_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+
+      - name: Set AKS context
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_CLUSTER_NAME }} \
+            --overwrite-existing
+
+      - name: Ensure ACR is attached to AKS
+        run: |
+          az aks update --name ${{ secrets.AKS_CLUSTER_NAME }} --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --attach-acr $ACR_NAME
+
+      - name: Apply production manifests (if changed)
+        run: |
+          kubectl apply -f k8s/product-service.yaml
+          kubectl apply -f k8s/order-service.yaml
+          kubectl apply -f k8s/customer-service.yaml
+
+      - name: Update product image & wait
+        run: |
+          PRODUCT_DEP=product-service-w10
+          PROD_CONT=$(kubectl get deployment $PRODUCT_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+          kubectl set image deployment/$PRODUCT_DEP $PROD_CONT=${{ env.ACR_LOGIN_SERVER }}/product_service:${{ env.IMAGE_TAG }} --record
+          kubectl rollout status deployment/$PRODUCT_DEP --timeout=180s
+
+      - name: Update order image & wait
+        run: |
+          ORDER_DEP=order-service-w10
+          ORDER_CONT=$(kubectl get deployment $ORDER_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+          kubectl set image deployment/$ORDER_DEP $ORDER_CONT=${{ env.ACR_LOGIN_SERVER }}/order_service:${{ env.IMAGE_TAG }} --record
+          kubectl rollout status deployment/$ORDER_DEP --timeout=180s
+
+      - name: Update customer image & wait
+        run: |
+          CUST_DEP=customer-service-w10
+          CUST_CONT=$(kubectl get deployment $CUST_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+          kubectl set image deployment/$CUST_DEP $CUST_CONT=${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }} --record
+          kubectl rollout status deployment/$CUST_DEP --timeout=180s
+
+      - name: Logout from Azure
+        run: az logout
+        if: always()
+

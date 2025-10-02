@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: customer-service-w05-aks
+  name: customer-service-w10
   labels:
     app: customer-service
 spec:
@@ -17,34 +17,34 @@ spec:
         app: customer-service
     spec:
       containers:
-      - name: customer-service-container
-        image: durgeshsamariya.azurecr.io/week05ex01cu:v1
+      - name: customer-service
+        image: sit722devopsacr.azurecr.io/customer_service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8002
         env:
         - name: POSTGRES_HOST
-          value: customer-db-service-w05-aks
+          value: customer-db-service-w10
         - name: POSTGRES_DB
           valueFrom:
             configMapKeyRef:
-              name: ecomm-config-w05-aks
+              name: ecomm-config-w10
               key: CUSTOMERS_DB_NAME
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: ecomm-secrets-w05-aks
+              name: ecomm-secrets-w10
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ecomm-secrets-w05-aks
+              name: ecomm-secrets-w10
               key: POSTGRES_PASSWORD
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: customer-service-w05-aks
+  name: customer-service-w10
   labels:
     app: customer-service
 spec:
