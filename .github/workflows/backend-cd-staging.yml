@@ -5,6 +5,8 @@ on:
     workflows: ["Backend CI - Test, Build and Push Images to ACR"]
     types:
       - completed
+  workflow_dispatch:
+
 
 jobs:
   deploy_backend_staging:
