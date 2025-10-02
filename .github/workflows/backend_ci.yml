@@ -5,15 +5,9 @@ on:
   push:
     branches:
       - testing
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
   pull_request:
     branches:
       - testing
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/backend-ci.yml'
   workflow_dispatch:
 
 env:
