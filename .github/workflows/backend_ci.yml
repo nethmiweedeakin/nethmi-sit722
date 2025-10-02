@@ -149,8 +149,6 @@ jobs:
               docker push ${{ env.ACR_LOGIN_SERVER }}/order_service --all-tags
 
 
-      
-
       - name: Logout from Azure
         run: az logout
         if: always()

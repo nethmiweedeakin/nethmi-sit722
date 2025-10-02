@@ -1,0 +1,90 @@
+name: Backend/Frontend CD - Deploy to AKS (Development)
+
+on:
+  workflow_run:
+    workflows: ["Backend CD - Deploy to AKS (Staging)"]
+
+    types: [completed]
+
+  push:
+    branches:
+      - main
+      - testing
+
+  workflow_dispatch:
+
+jobs:
+  deploy_backend:
+    runs-on: ubuntu-latest
+    env:
+      ACR_LOGIN_SERVER: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_CLUSTER_NAME }} \
+            --overwrite-existing
+
+      - name: Create ACR secret (if not exists)
+        run: |
+          kubectl get secret acr-secret || \
+          kubectl create secret docker-registry acr-secret \
+            --docker-server=${{ secrets.AZURE_CONTAINER_REGISTRY }} \
+            --docker-username=${{ secrets.AZURE_ACR_NAME }} \
+            --docker-password=${{ secrets.AZURE_ACR_KEY }} \
+            --docker-email=weeramann@gmail.com
+          kubectl get secret acr-secret
+
+      - name: Apply Kubernetes manifests and ensure latest image
+        run: |
+          # Apply all manifests
+          kubectl apply -f k8s/
+
+          # Force all deployments to use latest image
+          for DEP in product-service-w10 order-service-w10 customer-service-w10 frontend; do
+            CONT=$(kubectl get deployment $DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+            kubectl set image deployment/$DEP $CONT=${{ env.ACR_LOGIN_SERVER }}/$DEP:latest || echo "Deployment $DEP may not exist yet"
+          done
+
+      - name: Get external IPs of services
+        run: kubectl get svc
+
+      - name: Get pod health (Testing)
+        run: kubectl get pods -o wide
+
+      - name: Inject Backend IPs into Frontend main.js
+        run: |
+          # Get external IP:PORT for each backend service
+          PRODUCT_IP=$(kubectl get svc product-service-w10 -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):$(kubectl get svc product-service-w10 -o jsonpath='{.spec.ports[0].port}')
+          ORDER_IP=$(kubectl get svc order-service-w10 -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):$(kubectl get svc order-service-w10 -o jsonpath='{.spec.ports[0].port}')
+          CUSTOMER_IP=$(kubectl get svc customer-service-w10 -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):$(kubectl get svc customer-service-w10 -o jsonpath='{.spec.ports[0].port}')
+
+          # Inject into frontend/main.js
+          sed -i "s|_PRODUCT_API_URL_|$PRODUCT_IP|g" frontend/main.js
+          sed -i "s|_ORDER_API_URL_|$ORDER_IP|g" frontend/main.js
+          sed -i "s|_CUSTOMER_API_URL_|$CUSTOMER_IP|g" frontend/main.js
+
+          # Show the updated file
+          cat frontend/main.js
+
+      - name: Commit updated frontend/main.js to current branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/main.js
+          git commit -m "Update frontend/main.js with backend IPs" || echo "No changes to commit"
+          git push origin HEAD
+
+      - name: Logout from Azure
+        if: always()
+        run: az logout
