@@ -1,5 +1,5 @@
 # week10/k8s/customer-db.yaml
-#trigger
+#trigger code
 
 apiVersion: apps/v1
 kind: Deployment
