@@ -1,11 +1,6 @@
-
-name: Frontend CD - Deploy to AKS
+name: Frontend CD - Deploy to AKS with external IPS
 
 on:
-  workflow_run:
-    workflows: ["Frontend CI - Build & Push Image"]
-    types:
-      - completed
   workflow_dispatch:
     inputs:
       product_api_ip:
@@ -27,7 +22,6 @@ on:
 jobs:
   deploy_frontend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: Production
 
     env:
@@ -49,26 +43,4 @@ jobs:
       - name: Inject Backend IPs into Frontend main.js
         run: |
           sed -i "s|_PRODUCT_API_URL_|${{ inputs.product_api_ip }}|g" frontend/main.js
-          sed -i "s|_ORDER_API_URL_|${{ inputs.order_api_ip }}|g" frontend/main.js
-          sed -i "s|_CUSTOMER_API_URL_|${{ inputs.customer_api_ip }}|g" frontend/main.js
-          cat frontend/main.js
-
-      - name: Build & Push Frontend Image
-        run: |
-          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/frontend:latest ./frontend/
-          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/frontend:latest
-
-      - name: Set Kubernetes context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-      - name: Deploy Frontend
-        run: |
-          cd k8s/
-          kubectl apply -f frontend.yaml
-
-      - name: Logout from Azure
-        run: az logout
-        if: always()
+          sed -i "s|_ORDER_API_URL_|

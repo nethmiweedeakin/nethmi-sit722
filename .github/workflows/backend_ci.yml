@@ -1,5 +1,5 @@
 #Trigger
-name: Backend CI - Test, Build and Push Images to ACR
+name:  CI - Test, Build and Push Images to ACR
 
 on:
   push:
@@ -148,8 +148,11 @@ jobs:
               docker tag ${{ env.ACR_LOGIN_SERVER }}/order_service:${{ env.IMAGE_TAG }} ${{ env.ACR_LOGIN_SERVER }}/order_service:latest
               docker push ${{ env.ACR_LOGIN_SERVER }}/order_service --all-tags
 
-
-      
+      - name: Build & Push Frontend
+        run: |
+              docker build -t ${{ env.ACR_LOGIN_SERVER }}/frontend:${{ env.IMAGE_TAG }} ./frontend/
+              docker tag ${{ env.ACR_LOGIN_SERVER }}/frontend:${{ env.IMAGE_TAG }} ${{ env.ACR_LOGIN_SERVER }}/frontend:latest
+              docker push ${{ env.ACR_LOGIN_SERVER }}/frontend --all-tags
 
       - name: Logout from Azure
         run: az logout

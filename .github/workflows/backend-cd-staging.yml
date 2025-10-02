@@ -1,8 +1,8 @@
-name: Backend CD - Deploy to AKS (Staging)
+name: CD - Deploy to AKS (Staging)
 
 on:
   workflow_run:
-    workflows: ["Backend CI - Test, Build and Push Images to ACR"]
+    workflows: ["CI - Test, Build and Push Images to ACR"]
 
     types: [completed]
 
