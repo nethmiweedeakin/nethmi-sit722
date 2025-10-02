@@ -38,13 +38,6 @@ jobs:
             --name ${{ secrets.AKS_CLUSTER_NAME }} \
             --overwrite-existing
 
-      - name: Attach ACR to AKS
-        run: |
-         az aks update \
-          --name ${{ secrets.AKS_CLUSTER_NAME }} \
-          --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
-          --attach-acr ${{ secrets.AZURE_ACR_NAME }}
-
       - name: Create ephemeral namespace
         run: |
           kubectl create ns $STAGING_NS --dry-run=client -o yaml | kubectl apply -f -
