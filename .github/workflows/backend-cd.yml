@@ -31,10 +31,6 @@ jobs:
             --name ${{ secrets.AKS_CLUSTER_NAME }} \
             --overwrite-existing
 
-      - name: Ensure ACR is attached to AKS
-        run: |
-          az aks update --name ${{ secrets.AKS_CLUSTER_NAME }} --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --attach-acr ${{ secrets.AZURE_ACR_NAME }}
-
       - name: Apply production manifests (if changed)
         run: |
           kubectl apply -f k8s/product-service.yaml
