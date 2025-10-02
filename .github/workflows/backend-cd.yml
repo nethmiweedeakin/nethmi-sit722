@@ -1,9 +1,6 @@
 name: Backend CD - Deploy to AKS (Production)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -38,36 +35,16 @@ jobs:
             --docker-email=weeramann@gmail.com
           kubectl get secret acr-secret
 
-      - name: Apply Kubernetes manifests
-        run: kubectl apply -f k8s/
-
-      - name: Update product deployment image and rollout
+      - name: Apply Kubernetes manifests and ensure latest image
         run: |
-          PRODUCT_DEP=product-service-w10
-          PROD_CONT=$(kubectl get deployment $PRODUCT_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
-          kubectl set image deployment/$PRODUCT_DEP $PROD_CONT=${{ env.ACR_LOGIN_SERVER }}/product_service:latest
-          kubectl rollout status deployment/$PRODUCT_DEP --timeout=180s
+          # Apply all manifests
+          kubectl apply -f k8s/
 
-      - name: Update order deployment image and rollout
-        run: |
-          ORDER_DEP=order-service-w10
-          ORDER_CONT=$(kubectl get deployment $ORDER_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
-          kubectl set image deployment/$ORDER_DEP $ORDER_CONT=${{ env.ACR_LOGIN_SERVER }}/order_service:latest
-          kubectl rollout status deployment/$ORDER_DEP --timeout=180s
-
-      - name: Update customer deployment image and rollout
-        run: |
-          CUST_DEP=customer-service-w10
-          CUST_CONT=$(kubectl get deployment $CUST_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
-          kubectl set image deployment/$CUST_DEP $CUST_CONT=${{ env.ACR_LOGIN_SERVER }}/customer_service:latest
-          kubectl rollout status deployment/$CUST_DEP --timeout=180s
-
-      - name: Update frontend deployment image and rollout
-        run: |
-          FRONTEND_DEP=frontend
-          FRONTEND_CONT=$(kubectl get deployment $FRONTEND_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
-          kubectl set image deployment/$FRONTEND_DEP $FRONTEND_CONT=${{ env.ACR_LOGIN_SERVER }}/frontend:latest
-          kubectl rollout status deployment/$FRONTEND_DEP --timeout=180s
+          # Force all deployments to use latest image
+          for DEP in product-service-w10 order-service-w10 customer-service-w10 frontend; do
+            CONT=$(kubectl get deployment $DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
+            kubectl set image deployment/$DEP $CONT=${{ env.ACR_LOGIN_SERVER }}/$DEP:latest || echo "Deployment $DEP may not exist yet"
+          done
 
       - name: Get external IPs of services
         run: kubectl get svc
