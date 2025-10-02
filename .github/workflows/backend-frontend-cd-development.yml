@@ -6,11 +6,6 @@ on:
 
     types: [completed]
 
-  push:
-    branches:
-      - main
-      - testing
-
   workflow_dispatch:
 
 jobs:
