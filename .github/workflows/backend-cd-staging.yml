@@ -1,9 +1,8 @@
-
 name: Backend CD - Ephemeral Staging Deploy
 
 on:
   workflow_run:
-    workflows: ["Backend CI - Test, Build and Push Images to ACR"]
+    workflows: ["Backend CI - Test Build and Push Images to ACR"]
     types:
       - completed
 
@@ -12,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
-      ACR_LOGIN_SERVER_INPUT: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      ACR_LOGIN_SERVER: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
       IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
       STAGING_NS: staging-${{ github.run_id }}
 
@@ -33,49 +32,42 @@ jobs:
             --overwrite-existing
 
       - name: Create ephemeral namespace
-        run: kubectl create ns $STAGING_NS
+        run: |
+          kubectl create ns $STAGING_NS --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Apply k8s manifests into ephemeral namespace
-        run: |
-          # apply everything in k8s/ (ensure your repo contains product-db.yaml, order-db.yaml, customer-db.yaml, service/deployment YAMLs)
-          kubectl -n $STAGING_NS apply -f k8s/
+        run: kubectl -n $STAGING_NS apply -f k8s/
 
       - name: Update product deployment image and rollout
         run: |
-          set -e
           PRODUCT_DEP=product-service-w10
           PROD_CONT=$(kubectl -n $STAGING_NS get deployment $PRODUCT_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
           kubectl -n $STAGING_NS set image deployment/$PRODUCT_DEP $PROD_CONT=${{ env.ACR_LOGIN_SERVER }}/product_service:${{ env.IMAGE_TAG }}
-          kubectl -n $STAGING_NS rollout status deployment/$PRODUCT_DEP --timeout=120s
+          kubectl -n $STAGING_NS rollout status deployment/$PRODUCT_DEP --timeout=180s
 
       - name: Update order deployment image and rollout
         run: |
-          set -e
           ORDER_DEP=order-service-w10
           ORDER_CONT=$(kubectl -n $STAGING_NS get deployment $ORDER_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
           kubectl -n $STAGING_NS set image deployment/$ORDER_DEP $ORDER_CONT=${{ env.ACR_LOGIN_SERVER }}/order_service:${{ env.IMAGE_TAG }}
-          kubectl -n $STAGING_NS rollout status deployment/$ORDER_DEP --timeout=120s
+          kubectl -n $STAGING_NS rollout status deployment/$ORDER_DEP --timeout=180s
 
       - name: Update customer deployment image and rollout
         run: |
-          set -e
           CUST_DEP=customer-service-w10
           CUST_CONT=$(kubectl -n $STAGING_NS get deployment $CUST_DEP -o jsonpath='{.spec.template.spec.containers[0].name}')
           kubectl -n $STAGING_NS set image deployment/$CUST_DEP $CUST_CONT=${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }}
-          kubectl -n $STAGING_NS rollout status deployment/$CUST_DEP --timeout=120s
+          kubectl -n $STAGING_NS rollout status deployment/$CUST_DEP --timeout=180s
 
       - name: Simple acceptance tests (smoke)
         run: |
-          set -e
-          # run an in-cluster curl pod to hit the internal service DNS; adjust paths if your service uses different endpoints
           kubectl -n $STAGING_NS run --rm -i --restart=Never smoke-curl --image=curlimages/curl -- /bin/sh -c "curl -sSf http://product-service-w10:80/health && curl -sSf http://order-service-w10:80/health && curl -sSf http://customer-service-w10:80/health"
         timeout-minutes: 5
 
       - name: Destroy ephemeral namespace
         if: always()
-        run: |
-          kubectl delete ns $STAGING_NS --wait=false || true
+        run: kubectl delete ns $STAGING_NS --wait=false || true
 
       - name: Logout from Azure
-        run: az logout
         if: always()
+        run: az logout
