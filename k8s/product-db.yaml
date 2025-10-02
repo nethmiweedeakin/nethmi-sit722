@@ -37,6 +37,8 @@ spec:
             secretKeyRef:
               name: ecomm-secrets-w10 # Secret name matches
               key: POSTGRES_PASSWORD
+      imagePullSecrets:
+      - name: acr-secret
 ---
 apiVersion: v1
 kind: Service

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: customer-service
-        image: sit722devopsacr.azurecr.io/customer_service:latest
+        image: nwweek10acr.azurecr.io/customer_service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8002
@@ -40,6 +40,8 @@ spec:
             secretKeyRef:
               name: ecomm-secrets-w10
               key: POSTGRES_PASSWORD
+      imagePullSecrets:
+      - name: acr-secret
 ---
 apiVersion: v1
 kind: Service

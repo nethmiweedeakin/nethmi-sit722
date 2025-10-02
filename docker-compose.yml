@@ -83,7 +83,7 @@ services:
     build:
       context: ./backend/product_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/product_service:latest
+    image: nwweek10acr.azurecr.io/product_service:latest
     container_name: product_api_container
     restart: always
     ports:
@@ -112,7 +112,7 @@ services:
     build:
       context: ./backend/order_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/order_service:latest
+    image: nwweek10acr.azurecr.io/order_service:latest
     container_name: order_api_container
     restart: always
     ports:
@@ -140,7 +140,7 @@ services:
     build:
       context: ./backend/customer_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/customer_service:latest
+    image: nwweek10acr.azurecr.io/customer_service:latest
     container_name: customer_api_container
     restart: always
     ports:
@@ -166,7 +166,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/frontend:latest
+    image: nwweek10acr.azurecr.io/frontend:latest
     container_name: product_order_frontend
     restart: always
     ports:
