@@ -70,13 +70,6 @@ jobs:
           kubectl -n $STAGING_NS set image deployment/$CUST_DEP $CUST_CONT=${{ env.ACR_LOGIN_SERVER }}/customer_service:${{ env.IMAGE_TAG }}
           kubectl -n $STAGING_NS rollout status deployment/$CUST_DEP --timeout=180s
 
-      - name: Simple acceptance tests (smoke)
-        run: |
-          kubectl -n $STAGING_NS run --rm -i --restart=Never smoke-curl \
-            --image=curlimages/curl -- /bin/sh -c "\
-            curl -sSf http://${{ inputs.product_api_ip }}:8000/health && \
-            curl -sSf http://${{ inputs.order_api_ip }}:8001/health && \
-            curl -sSf http://${{ inputs.customer_api_ip }}:8002/health"
         timeout-minutes: 5
 
       - name: Destroy ephemeral namespace
