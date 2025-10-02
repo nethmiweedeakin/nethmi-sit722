@@ -33,7 +33,7 @@ spec:
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: ecomm-secrets-w010
+              name: ecomm-secrets-w10
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
