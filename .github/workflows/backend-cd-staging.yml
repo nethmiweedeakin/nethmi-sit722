@@ -2,7 +2,7 @@ name: Backend CD - Ephemeral Staging Deploy
 
 on:
   workflow_run:
-    workflows: ["Backend CI - Test Build and Push Images to ACR"]
+    workflows: ["Backend CI - Test, Build and Push Images to ACR"]
     types:
       - completed
 
