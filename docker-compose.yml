@@ -83,16 +83,16 @@ services:
     build:
       context: ./backend/product_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/product_service:latest
+    image: nwweek10acr.azurecr.io/product_service:latest
     container_name: product_api_container
     restart: always
     ports:
       - "8000:8000" # Map container port 8000 to host port 8000 (as per your request)
     environment:
       POSTGRES_HOST: product_db # Connects to the 'product_db' service within Docker network
-      AZURE_STORAGE_ACCOUNT_NAME: sit722devopsstg # Replace with your Azure Storage account name
-      AZURE_STORAGE_ACCOUNT_KEY: 5zJM+md7eOdHaJpcNORdotRJf3EjwVHN4wiCSkEI9ChCa7x2oYoxRzR7UmxHYOqybFzFHWr752vq+AStBo4kqg== # Replace with your Azure Storage account key
-      AZURE_STORAGE_CONTAINER_NAME: sit722devopsacr # Replace with your Azure Storage container name
+      AZURE_STORAGE_ACCOUNT_NAME: week10storageacct # Replace with your Azure Storage account name
+      AZURE_STORAGE_ACCOUNT_KEY: SSRLmKuEimGz+9GIqxPnnFet/A5996hPlVIKQjB28gTCmeE8nexMUbG4t2ZYt0By56Ety1cHDgkd+AStqLKi9A== # Replace with your Azure Storage account key
+      AZURE_STORAGE_CONTAINER_NAME: nwweek10acr # Replace with your Azure Storage container name
       AZURE_SAS_TOKEN_EXPIRY_HOURS: 24
       RABBITMQ_HOST: rabbitmq # Internal Docker network hostname for RabbitMQ
       RABBITMQ_PORT: 5672
@@ -112,7 +112,7 @@ services:
     build:
       context: ./backend/order_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/order_service:latest
+    image: nwweek10acr.azurecr.io/order_service:latest
     container_name: order_api_container
     restart: always
     ports:
@@ -140,7 +140,7 @@ services:
     build:
       context: ./backend/customer_service
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/customer_service:latest
+    image: nwweek10acr.azurecr.io/customer_service:latest
     container_name: customer_api_container
     restart: always
     ports:
@@ -166,7 +166,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: sit722devopsacr.azurecr.io/frontend:latest
+    image: nwweek10acr.azurecr.io/frontend:latest
     container_name: product_order_frontend
     restart: always
     ports:

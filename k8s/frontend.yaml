@@ -18,15 +18,17 @@ spec:
     spec:
       containers:
       - name: frontend-container
-        image: week08acrnethmi.azurecr.io/frontend:latest
+        image: nwweek10acr.azurecr.io/frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+    imagePullSecrets:
+      - name: acr-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-w08e1 # Service name matches
+  name: frontend-w10 # Service name matches
   labels:
     app: frontend
 spec:

@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-service-w10e1
+  name: product-service-w10
   labels:
     app: product-service
 spec:
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: product-service-container
-        image: product_service:latest
+        image: nwweek10acr.azurecr.io/product_service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -61,6 +61,8 @@ spec:
             configMapKeyRef:
               name: ecomm-config-w10 # ConfigMap name matches
               key: AZURE_SAS_TOKEN_EXPIRY_HOURS
+      imagePullSecrets:
+      - name: acr-secret
 ---
 apiVersion: v1
 kind: Service

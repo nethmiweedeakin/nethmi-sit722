@@ -31,6 +31,12 @@ logger.info(
     f"Order Service: Configured to communicate with Product Service at: {PRODUCT_SERVICE_URL}"
 )
 
+
+ORDER_SERVICE_URL = os.getenv("ORDER_SERVICE_URL", "http://localhost:8001")
+logger.info(
+    f"Order Service: Configured to communicate with Product Service at: {ORDER_SERVICE_URL}"
+)
+
 # --- FastAPI Application Setup ---
 app = FastAPI(
     title="Customer Service API",

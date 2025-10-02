@@ -1,12 +1,13 @@
+#Trigger
 name: Backend CI - Test, Build and Push Images to ACR
 
 on:
   push:
     branches:
       - testing
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches:
+      - testing
   workflow_dispatch:
 
 env:

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: order-service-container
-        image: order_service:latest
+        image: nwweek10acr.azurecr.io/order_service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8001
@@ -45,6 +45,8 @@ spec:
             configMapKeyRef:
               name: ecomm-config-w10
               key: PRODUCT_SERVICE_URL
+      imagePullSecrets:
+      - name: acr-secret
 ---
 apiVersion: v1
 kind: Service
