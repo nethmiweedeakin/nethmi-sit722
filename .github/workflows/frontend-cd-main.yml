@@ -6,6 +6,9 @@ on:
       - development
   workflow_dispatch:
 
+  workflow_dispatch:
+
+
 jobs:
   deploy_dev:
     runs-on: ubuntu-latest
