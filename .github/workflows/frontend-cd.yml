@@ -1,10 +1,5 @@
 name: Frontend CD - Deploy to AKS with external IPS
 on:
-  workflow_run:
-    workflows: ["Backend/Frontend CD - Deploy to AKS (Development)"]
-
-    types: [completed]
-
   workflow_dispatch:
 
 jobs:

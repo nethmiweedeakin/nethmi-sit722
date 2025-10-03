@@ -1,11 +1,6 @@
 name: Backend/Frontend CD - Deploy to AKS (Development)
 
 on:
-  workflow_run:
-    workflows: ["Backend CD - Deploy to AKS (Staging)"]
-
-    types: [completed]
-
   workflow_dispatch:
 
 jobs:
@@ -65,9 +60,9 @@ jobs:
           CUSTOMER_IP=$(kubectl get svc customer-service-w10 -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):$(kubectl get svc customer-service-w10 -o jsonpath='{.spec.ports[0].port}')
 
           # Inject into frontend/main.js
-          sed -i "s|_PRODUCT_API_URL_|$PRODUCT_IP|g" frontend/main.js
-          sed -i "s|_ORDER_API_URL_|$ORDER_IP|g" frontend/main.js
-          sed -i "s|_CUSTOMER_API_URL_|$CUSTOMER_IP|g" frontend/main.js
+              sed -i "s|http://product-service-w10:8000|$PRODUCT_IP|g" frontend/main.js
+              sed -i "s|http://order-service-w10:8001|$ORDER_IP|g" frontend/main.js
+              sed -i "s|http://customer-service-w10:8002|$CUSTOMER_IP|g" frontend/main.js
 
           # Show the updated file
           cat frontend/main.js
