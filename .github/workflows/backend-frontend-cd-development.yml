@@ -1,11 +1,17 @@
 name: Backend/Frontend CD - Deploy to AKS (Development)
 
 on:
+  workflow_run:
+    workflows: ["Backend CD - Deploy to AKS (Staging)"]
+
+    types: [completed]
+
   workflow_dispatch:
 
 jobs:
-  deploy_backend:
+  deploy_backend_staging:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     env:
       ACR_LOGIN_SERVER: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
 
@@ -72,8 +78,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add frontend/main.js
+          git add .
           git commit -m "Update frontend/main.js with backend IPs" || echo "No changes to commit"
-          git push origin HEAD
+          git push origin HEAD:development
 
       - name: Logout from Azure
         if: always()
