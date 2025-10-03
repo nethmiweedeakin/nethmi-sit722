@@ -1,11 +1,14 @@
 name: Frontend CD - Deploy to AKS with external IPS
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Backend/Frontend CD - Deploy to AKS (Development)"]
+    types:
+      - completed
 
 jobs:
-  deploy_frontend:
+  post_development:
     runs-on: ubuntu-latest
-    environment: Production
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     env:
       IMAGE_TAG: ${{ github.sha }}

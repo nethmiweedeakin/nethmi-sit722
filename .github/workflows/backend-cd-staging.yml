@@ -21,6 +21,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create staging branch from CI SHA
+        run: |
+          set -e
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "Creating branch staging-${SHA::7} for commit $SHA"
+          git fetch origin "$SHA" || git fetch --all
+          git checkout -b staging-${SHA::7} "$SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin staging-${SHA::7}
+
       - name: Azure Login
         uses: azure/login@v1
         with:
