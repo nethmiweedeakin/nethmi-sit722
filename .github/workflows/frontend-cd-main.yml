@@ -1,18 +1,16 @@
 name: Frontend CD - Push to main with Backend IPs
 
 on:
-  workflow_run:
-    workflows: ["Frontend CD - Deploy to AKS with external IPS"]
-    types:
-      - completed
-
+  push:
+    branches:
+      - development
   workflow_dispatch:
 
-
 jobs:
-  push_to_main:
+  deploy_dev:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      ACR_LOGIN_SERVER: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
 
     steps:
       - name: Checkout repository
