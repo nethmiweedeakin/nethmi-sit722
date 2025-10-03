@@ -2,9 +2,12 @@ name: Frontend CD - Push to main with Backend IPs
 
 on:
   workflow_run:
-    workflows: ["Frontend CD - Deploy to AKS with external IPS"]
+    workflows: ["rontend CD - Deploy to AKS with external IPS"]
     types:
       - completed
+
+  workflow_dispatch:
+
 
 jobs:
   push_to_main:
@@ -31,4 +34,3 @@ jobs:
       - name: Push changes to main
         run: |
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} main
-          echo "Pushed changes to main branch"
