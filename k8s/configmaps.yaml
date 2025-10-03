@@ -1,4 +1,4 @@
-# week08/k8s/configmaps.yaml
+# week10/k8s/configmaps.yaml
 
 apiVersion: v1
 kind: ConfigMap

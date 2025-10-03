@@ -86,6 +86,12 @@ jobs:
         if: always()
         run: kubectl delete ns $STAGING_NS --wait=false || true
 
+      - name: Delete staging branch after deployment
+        if: always()
+        run: |
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          git push origin --delete staging-${SHA::7} || echo "Branch staging-${SHA::7} already deleted"
+
       - name: Logout from Azure
         if: always()
         run: az logout

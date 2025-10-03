@@ -11,8 +11,6 @@ on:
   workflow_dispatch:
 
 env:
-  # This secret may be either the registry login server (nwweek10acr.azurecr.io)
-  # or the ACR name (nwweek10acr). The workflow will normalize it.
   ACR_LOGIN_SERVER: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
   IMAGE_TAG: ${{ github.sha }}
 
