@@ -2,7 +2,7 @@ name: Frontend CD - Push to main with Backend IPs
 
 on:
   workflow_run:
-    workflows: ["rontend CD - Deploy to AKS with external IPS"]
+    workflows: ["Frontend CD - Deploy to AKS with external IPS"]
     types:
       - completed
 
