@@ -1,9 +1,6 @@
 name: Frontend CD - Deploy to AKS with external IPS
-
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy_frontend:
